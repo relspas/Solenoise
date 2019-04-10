@@ -7,12 +7,12 @@
 
 ######################################################################
 # To Use:                                                            #
-# python10.py [csv file] [tracks to convert (-1 converts all tracks)] #
+# midiToH.py <csv_file> <tracks to convert (-1 converts all tracks)> #
 #                                                                    #
 # example:                                                           #
-# python10.py furelise.txt 2 3 4                                      #
+# midiToH.py furelise.txt 2 3 4                                      #
 # example:                                                           #
-# python10.py furelise.txt -1                                         #
+# midiToH.py furelise.txt -1                                         #
 ######################################################################
 
 ############################################################################
@@ -46,17 +46,16 @@ def removeRandom(noteArray, notePlace):
    noteArray[random.choice(notePlace)] = 0
    return noteArray
 
-# CSV file to read from
-csv_file = 'morse.txt'
-
-# File to write binary to
-dot_h_output_file = 'outputBeet.txt'
+# Check if command line args are included
+if len(sys.argv) < 3:
+    print "Usage: midiToH.py <csv_file> <tracks to convert (-1 converts all tracks)>"
+    sys.exit()
 
 # Command line arguments optional
 csv_file = sys.argv[1]
-dot_h_output_file = csv_file[:-4] + ".h" #removes last 4 chars and appends .h
+dot_h_output_file = csv_file[:-4] + ".h" #removes last 4 chars (.mid) and appends .h
 
-# Reading which tracks to compile
+# Reading in which tracks to compile
 tracksArray = []
 for trackSwitch in range (2, len(sys.argv)):
     tracksArray.append(int(sys.argv[trackSwitch]))
@@ -73,15 +72,18 @@ divisor = 10
 past_note_list = [0 for i in range (64)]
 note_list = [0 for i in range (64)] #Change 0 is note list back to None for debugging
 
-file = open(csv_file, 'r')
-csv_f = csv.reader(file)
+f = open(csv_file, 'r')
+csv_f = csv.reader(f)
 
 # DATA STUCTURES
 csv_array = []
 
-# Copy CSV into array for easy reading
+# Copy CSV into array because csv.reader only provides generator
 for row in csv_f:
     csv_array.append(row)
+    # print row
+
+f.close()
 
 # song duration in midiclocks
 duration = 0
@@ -102,17 +104,17 @@ if tracksArray[0] == -1:
     for track_num in range(0, numberOfTracks):
         tracksArray.append(track_num)
 
-# Tempo
-tempo = 500000 # Default tempo, if not labeled in song
+# Tempo (microseconds per beat)
+tempo = 500000 # Default tempo (120 bpm), if not labeled in song
 for row in csv_array:
     if row[2] == ' Tempo':
         tempo = int(row[3])
         break
 
-# Ticks per Beat
+# Ticks per Beat (quarter note)
 ticks_per_beat = int(csv_array[0][5])
 
-# Sampling Rate
+# Sampling Rate (ticks per 32nd note)
 sampling_rate = ticks_per_beat/8
 
 # Music that will be written to the file
@@ -141,13 +143,11 @@ for timestamp in range (0, duration/sampling_rate + 1):
         # Reseting cursor
         row = cursors[track]
 
-        # Skip to track
+        # Skip to track (only happens once per track)
         while (row < len(csv_array)) and \
             int(csv_array[row][0]) != track:
-            # print csv_array[row]
+            print csv_array[row]
             row = row + 1
-            if row >= len(csv_array):
-                break
 
         # Skipping unused lines in csv array
         while (row < len(csv_array)) and \
@@ -196,9 +196,11 @@ for timestamp in range (0, duration/sampling_rate + 1):
                     note_list[int(csv_array[row][4]) - lower_range] = 0
                     # print csv_array[row][4] + ": sub"
             elif len(csv_array[row]) > 4 and (int(csv_array[row][4]) - lower_range) < 0:
-                print "Note chopped off: too low"
+                pass
+                # print "Note chopped off: too low"
             else:
-                print "Note chopped off: too high"
+                pass
+                # print "Note chopped off: too high"
             row = row + 1
             # else:
                 # print "AN UNCAUGHT ERROR HAS OCCURED"
@@ -245,7 +247,7 @@ music_array_string += '};'
 # write to file
 # write_file.write('{'+str(",".join(map(str, note_list))) + '}')
 
-file.close()
+
 
 # WRITING
 write_file = open(dot_h_output_file, 'w')
