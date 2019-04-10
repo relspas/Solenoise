@@ -26,11 +26,11 @@ This file is included in the source here so it does not need to be downloaded ag
 
 ### csv to .h
 
-To use: `python10.py [csv file] [tracks to convert (-1 converts all tracks)]`
+To use: `midiToH.py [csv file] [tracks to convert (-1 converts all tracks)]`
 
-Example: `python10.py furelise.csv 2 3 4`
+Example: `midiToH.py furelise.csv 2 3 4`
 
-Example: `python10.py furelise.csv -1`
+Example: `midiToH.py furelise.csv -1`
 
 The track numbers are imbedded into the midi/csv file and usually separate instruments.
 This feature is handy for removing drums or only selecting piano. Use -1 to select all the tracks.
@@ -38,11 +38,11 @@ Other python files are outdated versions of the csv to .h converter.
 
 ### .h to compressed .h
 
-To use: `compress_v2.py [dot h file you want to convert]`
+To use: `compress.py [dot h file you want to convert]`
 
 The output file will be stored as the same file name with
 "\_compressed.h" appended to it                            
                                                            
-Example: `compress_v2.py csv/furelise.h`
+Example: `compress.py csv/furelise.h`
 New file name would be furelise_compressed.h              
 
